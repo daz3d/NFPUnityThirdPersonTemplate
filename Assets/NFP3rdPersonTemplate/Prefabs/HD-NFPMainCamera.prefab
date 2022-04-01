@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 7370785999846786211}
   - component: {fileID: 7785168971309882390}
   m_Layer: 9
-  m_Name: NFPMainCamera
+  m_Name: HD-NFPMainCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7370785999846786213}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4eb578550bc4f824e97f0a72eac1f3a5, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f4a0c03afd94e445a15de3fbc4c5824, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 100

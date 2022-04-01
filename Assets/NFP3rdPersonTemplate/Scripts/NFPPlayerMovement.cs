@@ -1,4 +1,4 @@
-#if ENABLE_INPUT_SYSTEM 
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
@@ -19,18 +19,18 @@ public class NFPPlayerMovement : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-	public GameObject followTarget;
+    public GameObject followTarget;
 
-	public float rotationPower;
+    public float rotationPower;
 
-	public float normalizeDelay;
-	public float normalizeSpeed;
+    public float normalizeDelay;
+    public float normalizeSpeed;
 
-	private Vector3 velocity;
+    private Vector3 velocity;
     private bool isGrounded;
-	private float timeBeforeNormalize;
+    private float timeBeforeNormalize;
 
-	private Quaternion originalFollowRotation;
+    private Quaternion originalFollowRotation;
 
 #if ENABLE_INPUT_SYSTEM
     InputAction movement;
@@ -38,7 +38,7 @@ public class NFPPlayerMovement : MonoBehaviour
 #endif
     void Start()
     {
-		originalFollowRotation = followTarget.transform.localRotation;
+        originalFollowRotation = followTarget.transform.localRotation;
 #if ENABLE_INPUT_SYSTEM
         movement = new InputAction("PlayerMovement", binding: "<Gamepad>/leftStick");
         movement.AddCompositeBinding("Dpad")
@@ -57,10 +57,10 @@ public class NFPPlayerMovement : MonoBehaviour
         movement.Enable();
         jump.Enable();
 #endif
-	}
+    }
 
-	// Update is called once per frame
-	void Update()
+    // Update is called once per frame
+    void Update()
     {
         float x;
         float z;
@@ -88,7 +88,7 @@ public class NFPPlayerMovement : MonoBehaviour
 
         controller.Move(move * speed * Time.deltaTime);
 
-        if(jumpPressed && isGrounded)
+        if (jumpPressed && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
@@ -97,54 +97,70 @@ public class NFPPlayerMovement : MonoBehaviour
 
         controller.Move(velocity * Time.deltaTime);
 
-		var characterAnimator = gameObject.GetComponentInChildren<Animator>();
-		if (characterAnimator != null)
-		{
-			var horzMove = move;
-			horzMove.y = 0;
+        var characterAnimator = gameObject.GetComponentInChildren<Animator>();
+        if (characterAnimator != null)
+        {
+            var horzMove = move;
+            horzMove.y = 0;
 
-			var horzVelocityMag = horzMove.magnitude;
-			characterAnimator.SetFloat("Speed", horzVelocityMag);
+            var horzVelocityMag = horzMove.magnitude;
+            characterAnimator.SetFloat("Speed", horzVelocityMag);
 
-			//Debug.Log("Speed: " + horzVelocityMag + " Input: " + x + "," + z);
-		}
+            //Debug.Log("Speed: " + horzVelocityMag + " Input: " + x + "," + z);
+        }
 
-		if (Input.GetMouseButton(1))
-		{
-			timeBeforeNormalize = normalizeDelay;
+        bool rightMousePressed = false;
 
-			var mouseSensitivity = 100f;
-			float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-			float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+#if ENABLE_INPUT_SYSTEM
+        rightMousePressed = Mouse.current.rightButton.isPressed;
+#else
+        rightMousePressed = Input.GetMouseButton(1);
+#endif
 
-			followTarget.transform.rotation *= Quaternion.AngleAxis(mouseX * rotationPower, Vector3.up);
+        if (rightMousePressed)
+        {
+            timeBeforeNormalize = normalizeDelay;
 
-			followTarget.transform.rotation *= Quaternion.AngleAxis(mouseY * rotationPower, Vector3.right);
+            var mouseSensitivity = 100f;
+            float mouseX, mouseY;
 
-			var angles = followTarget.transform.localEulerAngles;
-			angles.z = 0;
+#if ENABLE_INPUT_SYSTEM
+            mouseSensitivity = 50f;
+            mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity * Time.deltaTime;
+            mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity * Time.deltaTime;
+#else
+            mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+            mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+#endif
 
-			var angle = followTarget.transform.localEulerAngles.x;
+            followTarget.transform.rotation *= Quaternion.AngleAxis(mouseX * rotationPower, Vector3.up);
 
-			if (angle > 180 && angle < 340)
-			{
-				angles.x = 340;
-			}
-			else if (angle < 180 && angle > 40)
-			{
-				angles.x = 40;
-			}
+            followTarget.transform.rotation *= Quaternion.AngleAxis(mouseY * rotationPower, Vector3.right);
 
-			followTarget.transform.localEulerAngles = angles;
-		}
-		else
-		{
-			timeBeforeNormalize -= Time.deltaTime;
+            var angles = followTarget.transform.localEulerAngles;
+            angles.z = 0;
 
-			if (timeBeforeNormalize < 0)
-			{
-				followTarget.transform.localRotation = Quaternion.RotateTowards(followTarget.transform.localRotation, originalFollowRotation, normalizeSpeed * Time.deltaTime);
-			}
-		}
-	}
+            var angle = followTarget.transform.localEulerAngles.x;
+
+            if (angle > 180 && angle < 340)
+            {
+                angles.x = 340;
+            }
+            else if (angle < 180 && angle > 40)
+            {
+                angles.x = 40;
+            }
+
+            followTarget.transform.localEulerAngles = angles;
+        }
+        else
+        {
+            timeBeforeNormalize -= Time.deltaTime;
+
+            if (timeBeforeNormalize < 0)
+            {
+                followTarget.transform.localRotation = Quaternion.RotateTowards(followTarget.transform.localRotation, originalFollowRotation, normalizeSpeed * Time.deltaTime);
+            }
+        }
+    }
 }
